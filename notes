@@ -1,0 +1,39 @@
+Crie uma pasta vazia e dentro dela crie uma pasta para o backend e outra para o frontend.
+
+Crie um modulo node na raiz do projeto com: npm init -y
+
+Instale as dependências para o backend com: npm install express cookie-parser mailtrap bcryptjs jsonwebtoken mongoose dotenv crypto
+
+Instale o nodemon como dependência de desenvolvimento com: npm install nodemon -D
+
+
+Modifique o script e inclua dev no package.json para: "start": "nodemon backend/index.js", "dev": "nodemon backend/index.js" e crie um arquivo index.js na pasta src.
+
+Inclua no package.json um "type": "module" para poder usar import/export no node. 
+
+Crie um arquivo .env na raiz do projeto e adicione as variáveis de ambiente PORT=3000 e MONGODB
+
+Crie um arquivo server.js na pasta backend e adicione o código para iniciar o servidor express.
+Ele deverá ficar assim: 
+
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
+
+const app = express();
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
+mongoose.connect(process.env.MONGODB).then(() => {
+  console.log("Connected to MongoDB");
+});
+
+
+Crie um arquivo routes.js na pasta backend e adicione o código para as rotas da aplicação.
