@@ -198,48 +198,67 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
+    // Destructure token and password from request parameters and body
     const { token } = req.params;
     const { password } = req.body;
+
+    // Find user with matching token and not expired
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpiresAt: { $gt: Date.now() },
     });
+
+    // If no user found, return error
     if (!user) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid or expired token" });
     }
+
+    // Hash password using bcrypt
     const hashedPassword = await bcryptjs.hash(password, 10);
+
+    // Update user password and remove reset token and expiration
     user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     await user.save();
+
+    // Send success email
     await sendResetSuccessEmail(user.email, user.name);
+
+    // Return success message
     res
       .status(200)
       .json({ success: true, message: "Password reset successful" });
   } catch (error) {
+    // Log error and return error response
     console.log("Error in resetPassword", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
+// Checks if the user is authenticated by finding the user by ID  and returning the user object with the password field removed.
 export const checkAuth = async (req, res) => {
   try {
+    // Find user by ID
     const user = await User.findById(req.userId);
+    // If user not found, return error
     if (!user) {
       return res
         .status(400)
         .json({ success: false, message: "User not found" });
     }
+    // Return success response with user object with password field removed
     res.status(200).json({
       success: true,
       user: {
-        ...user._doc,
-        password: undefined,
+        ...user._doc, // Spread user object
+        password: undefined, // Remove password field
       },
     });
   } catch (error) {
+    // Log error and return server error response
     console.log("Error in checkAuth", error);
     res.status(400).json({ success: false, message: "Server error" });
   }
