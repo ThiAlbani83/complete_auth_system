@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 const EmailVerification = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const isLoading = true;
+
+  const {error, isLoading, verifyEmail } = useAuthStore();
 
   const handleCodeChange = (index, value) => {
     const newCode = [...code];
@@ -38,10 +41,16 @@ const EmailVerification = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const verificationCode = code.join("");
-    console.log(`Verification code submited: ${verificationCode}`);
+    try {
+      await verifyEmail(verificationCode);
+      navigate('/');
+      toast.success("Email verified successfully");
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   useEffect(() => {
@@ -80,6 +89,9 @@ const EmailVerification = () => {
               />
             ))}
           </div>
+          
+          {error && <p className="mt-2 font-semibold text-red-500">{error}</p>}
+
           <motion.button
             className="w-full px-4 py-3 mt-5 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-green-500 disabled:hover:to-emerald-600 disabled:focus:ring-0 disabled:focus:ring-offset-0 disabled:focus:ring-green-500 disabled:focus:ring-offset-gray-900 disabled:hover:scale-0 disabled:transform-none"
             type="submit"
