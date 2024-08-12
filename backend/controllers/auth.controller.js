@@ -29,7 +29,7 @@ export const signup = async (req, res) => {
     console.log("[signup] email, password, name: ", email, password, name);
 
     // Check if a user with the same email already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email }); // find user by email
     if (userExists) {
       console.log("[signup] user already exists");
       return res
@@ -38,7 +38,7 @@ export const signup = async (req, res) => {
     }
 
     // Hash the password using bcrypt
-    const hashedPassword = await bcryptjs.hash(password, 10);
+    const hashedPassword = await bcryptjs.hash(password, 10); // 10 is the salt rounds
 
     // Generate a verification token
     const verificationToken = Math.floor(
@@ -129,24 +129,47 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
+/**
+ * Sign in a user with the given email and password.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the user is signed in.
+ */
 export const signin = async (req, res) => {
+  // Destructure email and password from request body
   const { email, password } = req.body;
+
   try {
+    // Find user by email
     const user = await User.findOne({ email });
+    // If user not found, return error
     if (!user) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    const isPasswordValid = await bcryptjs.compare(password, user.password); // check if password is correct
+
+    // Check if password is correct
+    const isPasswordValid = await bcryptjs.compare(
+      password,
+      user.password
+    );
+
+    // If password is invalid, return error
     if (!isPasswordValid) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid password" });
     }
+
+    // Generate token and set cookie
     generateTokenAndSetCookie(res, user._id);
+
+    // Update last login time and save user
     user.lastLogin = Date.now();
     await user.save();
+
+    // Send success response with user data without password
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
@@ -156,6 +179,7 @@ export const signin = async (req, res) => {
       },
     });
   } catch (error) {
+    // Log error and return error response
     res.status(400).json({ success: false, message: error.message });
     console.log(error);
   }
