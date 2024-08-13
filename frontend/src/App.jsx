@@ -11,6 +11,8 @@ import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoadingSpinner from "./components/LoadingSpinner";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 //Protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -35,13 +37,13 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { isCheckingAuth, checkAuth, isAuthenticated, user } = useAuthStore();
+  const { isCheckingAuth, checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  if(isCheckingAuth) return <LoadingSpinner />
+  if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
@@ -93,6 +95,22 @@ function App() {
           element={
             <RedirectAuthenticatedUser>
               <EmailVerification />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <RedirectAuthenticatedUser>
+              <ForgotPassword />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            <RedirectAuthenticatedUser>
+              <ResetPassword />
             </RedirectAuthenticatedUser>
           }
         />
