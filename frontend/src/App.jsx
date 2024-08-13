@@ -10,6 +10,7 @@ import { useEffect } from "react";
 //Redirect authenticated users to home page
 import { Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 //Protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -40,8 +41,7 @@ function App() {
     checkAuth();
   }, [checkAuth]);
 
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("User", user);
+  if(isCheckingAuth) return <LoadingSpinner />
 
   return (
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">

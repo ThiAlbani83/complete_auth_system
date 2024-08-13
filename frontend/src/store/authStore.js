@@ -46,6 +46,7 @@ export const useAuthStore = create((set) => ({
   },
 
   checkAuth: async () => {
+    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate slow network
     set({ isCheckingAuth: true, error: null });
     try {
       const res = await axios.get(`${API_URL}/check-auth`);
@@ -78,6 +79,16 @@ export const useAuthStore = create((set) => ({
         isLoading: false,
       });
       throw error;
+    }
+  },
+
+  logout: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await axios.post(`${API_URL}/signout`);
+      set({ user: null, isAuthenticated: false, isLoading: false, error: null }); 
+    } catch (error) {
+      set({ error: "Error signing out" , isLoading: false });     
     }
   },
 }));
